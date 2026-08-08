@@ -19,6 +19,8 @@ add_executable(TEngine
     src/te_device.cpp
     src/te_swap_chain.hpp
     src/te_swap_chain.cpp
+    src/te_model.hpp
+    src/te_model.cpp
     src/main.cpp
 )
 
@@ -29,7 +31,9 @@ target_link_libraries(TEngine ${GLFW3_LIBRARY})
 
 add_custom_target(
     compileshaders
-    COMMAND cmd /c ${CMAKE_CURRENT_SOURCE_DIR}/compile.bat
+    COMMAND cmd /c ${CMAKE_SOURCE_DIR}/compile.bat
+    COMMENT "compile shaders..."
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 add_custom_target(copyshaders
@@ -39,4 +43,5 @@ add_custom_target(copyshaders
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
+add_dependencies(copyshaders compileshaders)
 add_dependencies(TEngine copyshaders)

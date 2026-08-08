@@ -8,6 +8,7 @@ namespace te
 
     TeApp::TeApp()
     {
+        loadModels();
         createPipelineLayout();
         createPipeline();
         createCommandBuffer();
@@ -27,6 +28,15 @@ namespace te
         }
 
         vkDeviceWaitIdle(teDevice.device());
+    }
+
+    void TeApp::loadModels()
+    {
+        std::vector<TeModel::Vertex> vertices{
+            {{0.0f, -0.5f}},
+            {{0.5f, 0.5f}},
+            {{-0.5f, 0.5f}}};
+        teModel = std::make_unique<TeModel>(teDevice, vertices);
     }
 
     void TeApp::createPipelineLayout()
@@ -96,7 +106,8 @@ namespace te
             vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
             tePipeline->bind(commandBuffers[i]);
-            vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+            teModel->bind(commandBuffers[i]);
+            teModel->draw(commandBuffers[i]);
 
             vkCmdEndRenderPass(commandBuffers[i]);
             if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)

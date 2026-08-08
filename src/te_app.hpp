@@ -4,6 +4,7 @@
 #include "te_pipeline.hpp"
 #include "te_device.hpp"
 #include "te_swap_chain.hpp"
+#include "te_model.hpp"
 
 #include <memory>
 #include <vector>
@@ -24,6 +25,7 @@ namespace te
         void run();
 
     private:
+        void loadModels();
         void createPipelineLayout();
         void createPipeline();
         void createCommandBuffer();
@@ -36,5 +38,6 @@ namespace te
         std::unique_ptr<TePipeline> tePipeline;
         VkPipelineLayout pipelineLayout;
         std::vector<VkCommandBuffer> commandBuffers;
+        std::unique_ptr<TeModel> teModel;
     };
 }
