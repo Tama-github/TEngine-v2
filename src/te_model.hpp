@@ -16,6 +16,7 @@ namespace te
         struct Vertex
         {
             glm::vec2 position;
+            glm::vec3 color;
             static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
             static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
         };
@@ -23,7 +24,7 @@ namespace te
         TeModel(TeDevice &device, const std::vector<Vertex> &vertices);
         ~TeModel();
         TeModel(const TeModel &) = delete;
-        TeModel operator=(const TeModel &) = delete;
+        TeModel &operator=(const TeModel &) = delete;
 
         void bind(VkCommandBuffer commandBuffer);
         void draw(VkCommandBuffer commandBuffer);

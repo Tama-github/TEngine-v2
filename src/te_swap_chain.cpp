@@ -17,6 +17,18 @@ namespace te
     TeSwapChain::TeSwapChain(TeDevice &deviceRef, VkExtent2D extent)
         : device{deviceRef}, windowExtent{extent}
     {
+        init();
+    }
+
+    TeSwapChain::TeSwapChain(TeDevice &deviceRef, VkExtent2D extent, std::shared_ptr<TeSwapChain> previous)
+        : device{deviceRef}, windowExtent{extent}, oldSwapChain{previous}
+    {
+        init();
+        oldSwapChain = nullptr;
+    }
+
+    void TeSwapChain::init()
+    {
         createSwapChain();
         createImageViews();
         createRenderPass();
@@ -180,8 +192,7 @@ namespace te
 
         createInfo.presentMode = presentMode;
         createInfo.clipped = VK_TRUE;
-
-        createInfo.oldSwapchain = VK_NULL_HANDLE;
+        createInfo.oldSwapchain = oldSwapChain == nullptr ? VK_NULL_HANDLE : oldSwapChain->swapChain;
 
         if (vkCreateSwapchainKHR(device.device(), &createInfo, nullptr, &swapChain) != VK_SUCCESS)
         {
@@ -398,7 +409,7 @@ namespace te
     {
         for (const auto &availableFormat : availableFormats)
         {
-            if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM &&
+            if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
                 availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
             {
                 return availableFormat;

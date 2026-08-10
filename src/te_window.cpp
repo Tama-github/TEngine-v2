@@ -17,8 +17,10 @@ namespace te
     {
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         window = glfwCreateWindow(width, height, windowName.c_str(), nullptr, nullptr);
+        glfwSetWindowUserPointer(window, this);
+        glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
     }
 
     void TeWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR *surface)
@@ -27,5 +29,13 @@ namespace te
         {
             throw std::runtime_error("failed to create window surface.");
         }
+    }
+
+    void TeWindow::framebufferResizeCallback(GLFWwindow *window, int width, int height)
+    {
+        auto teWindow = reinterpret_cast<TeWindow *>(glfwGetWindowUserPointer(window));
+        teWindow->frameBufferResized = true;
+        teWindow->width = width;
+        teWindow->height = height;
     }
 }
