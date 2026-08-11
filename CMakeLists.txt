@@ -21,6 +21,12 @@ add_executable(TEngine
     src/te_swap_chain.cpp
     src/te_model.hpp
     src/te_model.cpp
+    src/te_game_object.hpp
+    src/te_game_object.cpp
+    src/te_renderer.hpp
+    src/te_renderer.cpp
+    src/render_system.hpp
+    src/render_system.cpp
     src/main.cpp
 )
 

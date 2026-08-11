@@ -1,10 +1,9 @@
 #pragma once
 
-#include "te_window.hpp"
-#include "te_pipeline.hpp"
 #include "te_device.hpp"
-#include "te_swap_chain.hpp"
-#include "te_model.hpp"
+#include "te_game_object.hpp"
+#include "te_window.hpp"
+#include "te_renderer.hpp"
 
 #include <memory>
 #include <vector>
@@ -25,22 +24,12 @@ namespace te
         void run();
 
     private:
-        void loadModels();
-        void createPipelineLayout();
-        void createPipeline();
-        void createCommandBuffer();
-        void freeCommandBuffers();
-        void drawFrame();
-        void recreateSwapChain();
-        void recordCommandBuffer(int imageIndex);
+        void loadGameObjects();
 
         TeWindow teWindow{WINDOW_WIDTH, WINDOW_HEIGHT, "TEngine"};
         TeDevice teDevice{teWindow};
-        std::unique_ptr<TeSwapChain> teSwapChain;
-        // TePipeline tePipeline{teDevice, "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv", TePipeline::defaultPipelineConfigInfo(WINDOW_WIDTH, WINDOW_HEIGHT)};
-        std::unique_ptr<TePipeline> tePipeline;
-        VkPipelineLayout pipelineLayout;
-        std::vector<VkCommandBuffer> commandBuffers;
-        std::unique_ptr<TeModel> teModel;
+        TeRenderer teRenderer{teWindow, teDevice};
+
+        std::vector<TeGameObject> gameObjects;
     };
 }
