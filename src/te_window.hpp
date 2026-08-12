@@ -20,6 +20,8 @@ namespace te
         VkExtent2D getExtent() { return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)}; };
         bool hasWindowResized() { return frameBufferResized; }
         void resetWindowResizedFlag() { frameBufferResized = false; }
+        GLFWwindow *getGLFWWindow() const { return window; };
+
         void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
 
     private:

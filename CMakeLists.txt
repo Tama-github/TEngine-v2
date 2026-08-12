@@ -29,6 +29,8 @@ add_executable(TEngine
     src/render_system.cpp
     src/te_camera.hpp
     src/te_camera.cpp
+    src/kb_movement_controller.hpp
+    src/kb_movement_controller.cpp
     src/main.cpp
 )
 

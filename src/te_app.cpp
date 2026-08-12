@@ -1,5 +1,6 @@
 #include "te_app.hpp"
 
+#include "kb_movement_controller.hpp"
 #include "te_camera.hpp"
 #include "render_system.hpp"
 
@@ -8,9 +9,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include <stdexcept>
 #include <array>
 #include <cassert>
+#include <chrono>
+#include <stdexcept>
 
 namespace te
 {
@@ -27,14 +29,23 @@ namespace te
         RenderSystem renderSystem{teDevice, teRenderer.getSwapChainRenderPass()};
         TeCamera camera{};
 
-        // camera.setViewDirection(glm::vec3(0.0f), glm::vec3(0.5f, 0.0f, 1.0f));
-        camera.setViewTarget(glm::vec3(-1.0f, -2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 2.5f));
+        auto viewerObject = TeGameObject::createGameObject();
+        KBMovementController cameraController{};
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
 
         while (!teWindow.shouldClose())
         {
             glfwPollEvents();
+
+            auto newTime = std::chrono::high_resolution_clock::now();
+            float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+            currentTime = newTime;
+
+            cameraController.moveInPlanXZ(teWindow.getGLFWWindow(), frameTime, viewerObject);
+            camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+
             float aspect = teRenderer.getAspectRatio();
-            // camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
             camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 10.0f);
             if (auto commandBuffer = teRenderer.beginFrame())
             {
