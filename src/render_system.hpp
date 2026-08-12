@@ -1,5 +1,6 @@
 #pragma once
 
+#include "te_camera.hpp"
 #include "te_device.hpp"
 #include "te_game_object.hpp"
 #include "te_pipeline.hpp"
@@ -17,7 +18,7 @@ namespace te
         RenderSystem(const RenderSystem &) = delete;
         RenderSystem &operator=(const RenderSystem &) = delete;
 
-        void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<TeGameObject> &gameObjects);
+        void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<TeGameObject> &gameObjects, const TeCamera &camera);
 
     private:
         void createPipelineLayout();

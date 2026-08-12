@@ -19,6 +19,7 @@ namespace te
         TeRenderer &operator=(const TeRenderer &) = delete;
 
         VkRenderPass getSwapChainRenderPass() const { return teSwapChain->getRenderPass(); };
+        float getAspectRatio() const { return teSwapChain->extentAspectRatio(); };
         bool isFrameInProgress() const { return isFrameStarted; };
         VkCommandBuffer getCurrentCommandBuffer() const
         {

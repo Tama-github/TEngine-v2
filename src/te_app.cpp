@@ -1,4 +1,6 @@
 #include "te_app.hpp"
+
+#include "te_camera.hpp"
 #include "render_system.hpp"
 
 #define GLM_FORCE_RADIANS
@@ -23,14 +25,21 @@ namespace te
     void TeApp::run()
     {
         RenderSystem renderSystem{teDevice, teRenderer.getSwapChainRenderPass()};
+        TeCamera camera{};
+
+        // camera.setViewDirection(glm::vec3(0.0f), glm::vec3(0.5f, 0.0f, 1.0f));
+        camera.setViewTarget(glm::vec3(-1.0f, -2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 2.5f));
 
         while (!teWindow.shouldClose())
         {
             glfwPollEvents();
+            float aspect = teRenderer.getAspectRatio();
+            // camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
+            camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 10.0f);
             if (auto commandBuffer = teRenderer.beginFrame())
             {
                 teRenderer.beginSwapChainRenderPass(commandBuffer);
-                renderSystem.renderGameObjects(commandBuffer, gameObjects);
+                renderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
                 teRenderer.endSwapChainRenderPass(commandBuffer);
                 teRenderer.endFrame();
             }
@@ -104,7 +113,7 @@ namespace te
         std::shared_ptr<TeModel> teModel = createCubeModel(teDevice, {0.0f, 0.0f, 0.0f});
         auto cube = TeGameObject::createGameObject();
         cube.model = teModel;
-        cube.transform.translation = {0.0f, 0.0f, 0.5f};
+        cube.transform.translation = {0.0f, 0.0f, 2.5f};
         cube.transform.scale = {0.5f, 0.5f, 0.5f};
         gameObjects.push_back(std::move(cube));
     }

@@ -59,9 +59,12 @@ namespace te
         tePipeline = std::make_unique<TePipeline>(teDevice, "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv", pipelineConfig);
     }
 
-    void RenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<TeGameObject> &gameObjects)
+    void RenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<TeGameObject> &gameObjects, const TeCamera &camera)
     {
         tePipeline->bind(commandBuffer);
+
+        auto projectionView = camera.getProjection() * camera.getView();
+
         for (auto &obj : gameObjects)
         {
             obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01f, glm::two_pi<float>());
@@ -69,7 +72,7 @@ namespace te
 
             PushConstantData push{};
             push.color = obj.color;
-            push.tranform = obj.transform.mat4();
+            push.tranform = projectionView * obj.transform.mat4();
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData), &push);
             obj.model->bind(commandBuffer);
             obj.model->draw(commandBuffer);
