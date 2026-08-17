@@ -21,7 +21,13 @@ namespace te
             static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
         };
 
-        TeModel(TeDevice &device, const std::vector<Vertex> &vertices);
+        struct Builder
+        {
+            std::vector<Vertex> vertices{};
+            std::vector<uint32_t> indices{};
+        };
+
+        TeModel(TeDevice &device, const TeModel::Builder &builder);
         ~TeModel();
         TeModel(const TeModel &) = delete;
         TeModel &operator=(const TeModel &) = delete;
@@ -31,9 +37,17 @@ namespace te
 
     private:
         void createVertexBuffers(const std::vector<Vertex> &vertices);
+        void createIndexBuffers(const std::vector<uint32_t> &indices);
+
         TeDevice &teDevice;
+
         VkBuffer vertexBuffer;
         VkDeviceMemory vertexBufferMemory;
         uint32_t vertexCount;
+
+        bool hasIndexBuffer = false;
+        VkBuffer indexBuffer;
+        VkDeviceMemory indexBufferMemory;
+        uint32_t indexCount;
     };
 }
