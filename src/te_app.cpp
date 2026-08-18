@@ -61,10 +61,10 @@ namespace te
 
     void TeApp::loadGameObjects()
     {
-        std::shared_ptr<TeModel> teModel = TeModel::createModelFromFile(teDevice, "Assets/models/smooth_vase.obj");
+        std::shared_ptr<TeModel> teModel = TeModel::createModelFromFile(teDevice, "Assets/models/flat_vase.obj");
         auto obj = TeGameObject::createGameObject();
         obj.model = teModel;
-        obj.transform.translation = {0.0f, 0.0f, 2.5f};
+        obj.transform.translation = {0.0f, 0.5f, 2.5f};
         obj.transform.scale = glm::vec3(3.0f);
         gameObjects.push_back(std::move(obj));
     }

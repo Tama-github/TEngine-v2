@@ -15,7 +15,7 @@ namespace te
     struct PushConstantData
     {
         glm::mat4 tranform{1.0f};
-        alignas(16) glm::vec3 color;
+        glm::mat4 normalMatrix{1.0f};
     };
 
     RenderSystem::RenderSystem(TeDevice &device, VkRenderPass renderPass) : teDevice{device}
@@ -56,7 +56,7 @@ namespace te
         TePipeline::defaultPipelineConfigInfo(pipelineConfig);
         pipelineConfig.renderPass = renderPass;
         pipelineConfig.pipelineLayout = pipelineLayout;
-        tePipeline = std::make_unique<TePipeline>(teDevice, "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv", pipelineConfig);
+        tePipeline = std::make_unique<TePipeline>(teDevice, "Assets/shaders/simple_shader.vert.spv", "Assets/shaders/simple_shader.frag.spv", pipelineConfig);
     }
 
     void RenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<TeGameObject> &gameObjects, const TeCamera &camera)
@@ -69,8 +69,9 @@ namespace te
         {
 
             PushConstantData push{};
-            push.color = obj.color;
-            push.tranform = projectionView * obj.transform.mat4();
+            auto modelMatrix = obj.transform.mat4();
+            push.tranform = projectionView * modelMatrix;
+            push.normalMatrix = obj.transform.normalMatrix();
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantData), &push);
             obj.model->bind(commandBuffer);
             obj.model->draw(commandBuffer);
