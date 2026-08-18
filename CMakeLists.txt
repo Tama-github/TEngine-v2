@@ -1,14 +1,19 @@
 cmake_minimum_required(VERSION 4.0.0)
 project(TEngine VERSION 1.0.0)
 
+set(CMAKE_CXX_STANDARD 17)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_BINARY_DIR}/bin>)
+set(LOCAL_INCLUDE_DIR "C:/lib")
 
 find_package(GLFW3 REQUIRED)
 find_package(Vulkan)
 
-add_executable(TEngine 
+add_executable(TEngine
     src/config.h
+    src/te_utils.hpp
+    src/te_utils.cpp
     src/te_window.hpp
     src/te_window.cpp
     src/te_app.hpp
@@ -35,9 +40,12 @@ add_executable(TEngine
 )
 
 target_include_directories(TEngine PRIVATE dependencies)
+target_include_directories(TEngine PRIVATE ${LOCAL_INCLUDE_DIR}/tinyobjectloader)
+
 
 target_link_libraries(TEngine Vulkan::Vulkan)
 target_link_libraries(TEngine ${GLFW3_LIBRARY})
+target_link_libraries(TEngine )
 
 add_custom_target(
     compileshaders
@@ -46,12 +54,12 @@ add_custom_target(
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-add_custom_target(copyshaders
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/shaders
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders ${CMAKE_BINARY_DIR}/bin/shaders
-  COMMENT "copying shaders..."
+add_custom_target(copyassets
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/Assets
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Assets ${CMAKE_BINARY_DIR}/bin/Assets
+  COMMENT "copying assets..."
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
-add_dependencies(copyshaders compileshaders)
-add_dependencies(TEngine copyshaders)
+add_dependencies(copyassets compileshaders)
+add_dependencies(TEngine copyassets)
