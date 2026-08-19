@@ -14,6 +14,10 @@ add_executable(TEngine
     src/config.h
     src/te_utils.hpp
     src/te_utils.cpp
+    src/te_buffer.hpp
+    src/te_buffer.cpp
+    src/te_frame_info.hpp
+    src/te_frame_info.cpp
     src/te_window.hpp
     src/te_window.cpp
     src/te_app.hpp

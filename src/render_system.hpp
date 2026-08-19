@@ -4,6 +4,7 @@
 #include "te_device.hpp"
 #include "te_game_object.hpp"
 #include "te_pipeline.hpp"
+#include "te_frame_info.hpp"
 
 #include <memory>
 #include <vector>
@@ -18,7 +19,7 @@ namespace te
         RenderSystem(const RenderSystem &) = delete;
         RenderSystem &operator=(const RenderSystem &) = delete;
 
-        void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<TeGameObject> &gameObjects, const TeCamera &camera);
+        void renderGameObjects(FrameInfo &frameInfo, std::vector<TeGameObject> &gameObjects);
 
     private:
         void createPipelineLayout();

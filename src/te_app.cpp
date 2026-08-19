@@ -1,6 +1,7 @@
 #include "te_app.hpp"
 
 #include "kb_movement_controller.hpp"
+#include "te_buffer.hpp"
 #include "te_camera.hpp"
 #include "render_system.hpp"
 
@@ -17,6 +18,12 @@
 namespace te
 {
 
+    struct GlobalUbo
+    {
+        glm::mat4 projectionView{1.0f};
+        glm::vec3 lightDirection = glm::normalize(glm::vec3{1.0, -3.0, -1.0});
+    };
+
     TeApp::TeApp()
     {
         loadGameObjects();
@@ -26,6 +33,16 @@ namespace te
 
     void TeApp::run()
     {
+        TeBuffer globalUboBuffer{
+            teDevice,
+            sizeof(GlobalUbo),
+            TeSwapChain::MAX_FRAMES_IN_FLIGHT,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+            teDevice.properties.limits.minUniformBufferOffsetAlignment,
+        };
+        globalUboBuffer.map();
+
         RenderSystem renderSystem{teDevice, teRenderer.getSwapChainRenderPass()};
         TeCamera camera{};
 
@@ -49,8 +66,23 @@ namespace te
             camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 10.0f);
             if (auto commandBuffer = teRenderer.beginFrame())
             {
+                int frameIndex = teRenderer.getFrameIndex();
+                FrameInfo frameInfo{
+                    frameIndex,
+                    frameTime,
+                    commandBuffer,
+                    camera,
+                };
+
+                // update
+                GlobalUbo ubo{};
+                ubo.projectionView = camera.getProjection() * camera.getView();
+                globalUboBuffer.writeToIndex(&ubo, frameIndex);
+                globalUboBuffer.flushIndex(frameIndex);
+
+                // render
                 teRenderer.beginSwapChainRenderPass(commandBuffer);
-                renderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
+                renderSystem.renderGameObjects(frameInfo, gameObjects);
                 teRenderer.endSwapChainRenderPass(commandBuffer);
                 teRenderer.endFrame();
             }

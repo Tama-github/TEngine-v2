@@ -1,6 +1,7 @@
 #pragma once
 
 #include "te_device.hpp"
+#include "te_buffer.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -53,13 +54,11 @@ namespace te
 
         TeDevice &teDevice;
 
-        VkBuffer vertexBuffer;
-        VkDeviceMemory vertexBufferMemory;
+        std::unique_ptr<TeBuffer> vertexBuffer;
         uint32_t vertexCount;
 
         bool hasIndexBuffer = false;
-        VkBuffer indexBuffer;
-        VkDeviceMemory indexBufferMemory;
+        std::unique_ptr<TeBuffer> indexBuffer;
         uint32_t indexCount;
     };
 }
