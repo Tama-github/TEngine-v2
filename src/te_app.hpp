@@ -1,5 +1,6 @@
 #pragma once
 
+#include "te_descriptors.hpp"
 #include "te_device.hpp"
 #include "te_game_object.hpp"
 #include "te_window.hpp"
@@ -30,6 +31,8 @@ namespace te
         TeDevice teDevice{teWindow};
         TeRenderer teRenderer{teWindow, teDevice};
 
+        // note: order of declaration matters
+        std::unique_ptr<TeDescriptorPool> globalPool{};
         std::vector<TeGameObject> gameObjects;
     };
 }

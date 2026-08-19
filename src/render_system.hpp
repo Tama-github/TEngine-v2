@@ -14,7 +14,7 @@ namespace te
     class RenderSystem
     {
     public:
-        RenderSystem(TeDevice &device, VkRenderPass renderPass);
+        RenderSystem(TeDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
         ~RenderSystem();
         RenderSystem(const RenderSystem &) = delete;
         RenderSystem &operator=(const RenderSystem &) = delete;
@@ -22,7 +22,7 @@ namespace te
         void renderGameObjects(FrameInfo &frameInfo, std::vector<TeGameObject> &gameObjects);
 
     private:
-        void createPipelineLayout();
+        void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
         void createPipeline(VkRenderPass renderpass);
 
         TeDevice &teDevice;

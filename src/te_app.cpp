@@ -26,6 +26,10 @@ namespace te
 
     TeApp::TeApp()
     {
+        globalPool = TeDescriptorPool::Builder(teDevice)
+                         .setMaxSets(TeSwapChain::MAX_FRAMES_IN_FLIGHT)
+                         .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, TeSwapChain::MAX_FRAMES_IN_FLIGHT)
+                         .build();
         loadGameObjects();
     }
 
@@ -33,17 +37,37 @@ namespace te
 
     void TeApp::run()
     {
-        TeBuffer globalUboBuffer{
-            teDevice,
-            sizeof(GlobalUbo),
-            TeSwapChain::MAX_FRAMES_IN_FLIGHT,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-            teDevice.properties.limits.minUniformBufferOffsetAlignment,
-        };
-        globalUboBuffer.map();
+        std::vector<std::unique_ptr<TeBuffer>> uboBuffers(TeSwapChain::MAX_FRAMES_IN_FLIGHT);
 
-        RenderSystem renderSystem{teDevice, teRenderer.getSwapChainRenderPass()};
+        for (int i = 0; i < uboBuffers.size(); i++)
+        {
+            uboBuffers[i] = std::make_unique<TeBuffer>(
+                teDevice,
+                sizeof(GlobalUbo),
+                TeSwapChain::MAX_FRAMES_IN_FLIGHT,
+                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT /*| VK_MEMORY_PROPERTY_HOST_COHERENT_BIT*/); // this flag is to avoid to flush the memory
+            uboBuffers[i]->map();
+        }
+
+        auto globalSetLayout =
+            TeDescriptorSetLayout::Builder(teDevice)
+                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+                .build();
+
+        std::vector<VkDescriptorSet> globalDescriptorSets(TeSwapChain::MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < globalDescriptorSets.size(); i++)
+        {
+            auto bufferInfo = uboBuffers[i]->descriptorInfo();
+            TeDescriptorWriter(*globalSetLayout, *globalPool)
+                .writeBuffer(0, &bufferInfo)
+                .build(globalDescriptorSets[i]);
+        }
+
+        RenderSystem renderSystem{
+            teDevice,
+            teRenderer.getSwapChainRenderPass(),
+            globalSetLayout->getDescriptorSetLayout()};
         TeCamera camera{};
 
         auto viewerObject = TeGameObject::createGameObject();
@@ -72,13 +96,14 @@ namespace te
                     frameTime,
                     commandBuffer,
                     camera,
+                    globalDescriptorSets[frameIndex],
                 };
 
                 // update
                 GlobalUbo ubo{};
                 ubo.projectionView = camera.getProjection() * camera.getView();
-                globalUboBuffer.writeToIndex(&ubo, frameIndex);
-                globalUboBuffer.flushIndex(frameIndex);
+                uboBuffers[frameIndex]->writeToBuffer(&ubo);
+                uboBuffers[frameIndex]->flush();
 
                 // render
                 teRenderer.beginSwapChainRenderPass(commandBuffer);

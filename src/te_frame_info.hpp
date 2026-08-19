@@ -12,5 +12,6 @@ namespace te
         float frameTime;
         VkCommandBuffer commandBuffer;
         TeCamera &camera;
+        VkDescriptorSet globalDescriptoSet;
     };
 }

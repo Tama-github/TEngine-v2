@@ -18,6 +18,8 @@ add_executable(TEngine
     src/te_buffer.cpp
     src/te_frame_info.hpp
     src/te_frame_info.cpp
+    src/te_descriptors.hpp
+    src/te_descriptors.cpp
     src/te_window.hpp
     src/te_window.cpp
     src/te_app.hpp
