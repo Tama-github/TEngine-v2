@@ -33,6 +33,6 @@ namespace te
 
         // note: order of declaration matters
         std::unique_ptr<TeDescriptorPool> globalPool{};
-        std::vector<TeGameObject> gameObjects;
+        TeGameObject::Map gameObjects;
     };
 }

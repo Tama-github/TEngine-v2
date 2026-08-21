@@ -6,10 +6,15 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec2 uv;
 
 layout(location = 0) out vec3 fragColor;
+layout(location = 1) out vec3 fragWorldPos;
+layout(location = 2) out vec3 fragWorldNormal;
 
+// linked to GLobalUbo in te_app
 layout(set = 0, binding = 0) uniform GlobalUbo {
     mat4 projectionViewMatrix;
-    vec3 directionToLight;
+    vec4 ambiantLightColor; // w is light intensity
+    vec4 lightPosition; // w not used, it's for memory alignement
+    vec4 lightColor; // w is light intensity
 } ubo;
 
 layout(push_constant) uniform Push {
@@ -17,13 +22,12 @@ layout(push_constant) uniform Push {
     mat4 normalMatrix;
 } push;
 
-const float AMBIENT = 0.02;
-
 void main() {
-    gl_Position = ubo.projectionViewMatrix * push.modelMatrix * vec4(position, 1.0);
+    vec4 worldPos = push.modelMatrix * vec4(position, 1.0);
 
-    vec3 normalWorldSpace = normalize(mat3(push.normalMatrix) * normal);
+    gl_Position = ubo.projectionViewMatrix * worldPos;
 
-    float lightIntensity = AMBIENT + max(dot(normalWorldSpace, ubo.directionToLight), 0);
-    fragColor = lightIntensity * color;
+    fragWorldNormal = normalize(mat3(push.normalMatrix) * normal);
+    fragWorldPos = worldPos.xyz;
+    fragColor = color;
 }

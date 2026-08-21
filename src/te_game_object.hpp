@@ -2,8 +2,10 @@
 
 #include "te_model.hpp"
 
-#include <memory>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include <memory>
+#include <unordered_map>
 
 namespace te
 {
@@ -20,6 +22,8 @@ namespace te
     {
     public:
         using id_t = unsigned int;
+        using Map = std::unordered_map<id_t, TeGameObject>;
+
         static TeGameObject createGameObject()
         {
             static id_t currentId = 0;

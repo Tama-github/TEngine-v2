@@ -1,6 +1,7 @@
 #pragma once
 
 #include "te_camera.hpp"
+#include "te_game_object.hpp"
 
 #include <vulkan/vulkan.h>
 
@@ -13,5 +14,6 @@ namespace te
         VkCommandBuffer commandBuffer;
         TeCamera &camera;
         VkDescriptorSet globalDescriptoSet;
+        TeGameObject::Map &gameObjects;
     };
 }

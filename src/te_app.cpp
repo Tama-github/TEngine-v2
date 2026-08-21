@@ -18,10 +18,13 @@
 namespace te
 {
 
+    // linked as [layout(set = 0, binding = 0) uniform GlobalUbo ...] inside the shaders
     struct GlobalUbo
     {
         glm::mat4 projectionView{1.0f};
-        glm::vec3 lightDirection = glm::normalize(glm::vec3{1.0, -3.0, -1.0});
+        glm::vec4 ambiantLightColor{1.0, 1.0, 1.0, 0.02}; // w is light intensity
+        glm::vec4 lightPosition{-1.0f};                   // w not used, it's for memory alignement
+        glm::vec4 lightColor{1.0f};                       // w is light intensity
     };
 
     TeApp::TeApp()
@@ -52,7 +55,7 @@ namespace te
 
         auto globalSetLayout =
             TeDescriptorSetLayout::Builder(teDevice)
-                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
                 .build();
 
         std::vector<VkDescriptorSet> globalDescriptorSets(TeSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -71,6 +74,7 @@ namespace te
         TeCamera camera{};
 
         auto viewerObject = TeGameObject::createGameObject();
+        viewerObject.transform.translation.z = -2.5f;
         KBMovementController cameraController{};
 
         auto currentTime = std::chrono::high_resolution_clock::now();
@@ -87,7 +91,7 @@ namespace te
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = teRenderer.getAspectRatio();
-            camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 10.0f);
+            camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 100.0f);
             if (auto commandBuffer = teRenderer.beginFrame())
             {
                 int frameIndex = teRenderer.getFrameIndex();
@@ -97,6 +101,7 @@ namespace te
                     commandBuffer,
                     camera,
                     globalDescriptorSets[frameIndex],
+                    gameObjects,
                 };
 
                 // update
@@ -107,7 +112,7 @@ namespace te
 
                 // render
                 teRenderer.beginSwapChainRenderPass(commandBuffer);
-                renderSystem.renderGameObjects(frameInfo, gameObjects);
+                renderSystem.renderGameObjects(frameInfo);
                 teRenderer.endSwapChainRenderPass(commandBuffer);
                 teRenderer.endFrame();
             }
@@ -118,11 +123,18 @@ namespace te
 
     void TeApp::loadGameObjects()
     {
-        std::shared_ptr<TeModel> teModel = TeModel::createModelFromFile(teDevice, "Assets/models/flat_vase.obj");
+        std::shared_ptr<TeModel> teModel = TeModel::createModelFromFile(teDevice, "Assets/models/smooth_vase.obj");
         auto obj = TeGameObject::createGameObject();
         obj.model = teModel;
-        obj.transform.translation = {0.0f, 0.5f, 2.5f};
+        obj.transform.translation = {0.0f, 0.5f, 0.0f};
         obj.transform.scale = glm::vec3(3.0f);
-        gameObjects.push_back(std::move(obj));
+        gameObjects.emplace(obj.getId(), std::move(obj));
+
+        teModel = TeModel::createModelFromFile(teDevice, "Assets/models/quad.obj");
+        auto quad = TeGameObject::createGameObject();
+        quad.model = teModel;
+        quad.transform.translation = {0.0f, 0.5f, 0.0f};
+        quad.transform.scale = glm::vec3(3.0f);
+        gameObjects.emplace(quad.getId(), std::move(quad));
     }
 }
