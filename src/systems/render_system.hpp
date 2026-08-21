@@ -1,10 +1,10 @@
 #pragma once
 
-#include "te_camera.hpp"
-#include "te_device.hpp"
-#include "te_game_object.hpp"
-#include "te_pipeline.hpp"
-#include "te_frame_info.hpp"
+#include "../te_camera.hpp"
+#include "../te_device.hpp"
+#include "../te_game_object.hpp"
+#include "../te_pipeline.hpp"
+#include "../te_frame_info.hpp"
 
 #include <memory>
 #include <vector>

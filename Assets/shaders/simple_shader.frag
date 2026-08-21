@@ -8,7 +8,8 @@ layout(location = 0) out vec4 outColor;
 
 // linked to GLobalUbo in te_app
 layout(set = 0, binding = 0) uniform GlobalUbo {
-    mat4 projectionViewMatrix;
+    mat4 projection;
+    mat4 view;
     vec4 ambiantLightColor; // w is light intensity
     vec4 lightPosition; // w not used, it's for memory alignement
     vec4 lightColor; // w is light intensity

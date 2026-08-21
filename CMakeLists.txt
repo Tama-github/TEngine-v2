@@ -36,8 +36,10 @@ add_executable(TEngine
     src/te_game_object.cpp
     src/te_renderer.hpp
     src/te_renderer.cpp
-    src/render_system.hpp
-    src/render_system.cpp
+    src/systems/render_system.hpp
+    src/systems/render_system.cpp
+    src/systems/point_light_system.hpp
+    src/systems/point_light_system.cpp
     src/te_camera.hpp
     src/te_camera.cpp
     src/kb_movement_controller.hpp

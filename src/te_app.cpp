@@ -3,7 +3,8 @@
 #include "kb_movement_controller.hpp"
 #include "te_buffer.hpp"
 #include "te_camera.hpp"
-#include "render_system.hpp"
+#include "systems/render_system.hpp"
+#include "systems/point_light_system.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -21,10 +22,11 @@ namespace te
     // linked as [layout(set = 0, binding = 0) uniform GlobalUbo ...] inside the shaders
     struct GlobalUbo
     {
-        glm::mat4 projectionView{1.0f};
+        glm::mat4 projection{1.0f};
+        glm::mat4 view{1.0f};
         glm::vec4 ambiantLightColor{1.0, 1.0, 1.0, 0.02}; // w is light intensity
         glm::vec4 lightPosition{-1.0f};                   // w not used, it's for memory alignement
-        glm::vec4 lightColor{1.0f};                       // w is light intensity
+        glm::vec4 lightColor{1.0f, 0.1f, 0.5f, 1.0f};     // w is light intensity
     };
 
     TeApp::TeApp()
@@ -71,6 +73,10 @@ namespace te
             teDevice,
             teRenderer.getSwapChainRenderPass(),
             globalSetLayout->getDescriptorSetLayout()};
+        PointLightSystem pointLightSystem{
+            teDevice,
+            teRenderer.getSwapChainRenderPass(),
+            globalSetLayout->getDescriptorSetLayout()};
         TeCamera camera{};
 
         auto viewerObject = TeGameObject::createGameObject();
@@ -106,13 +112,15 @@ namespace te
 
                 // update
                 GlobalUbo ubo{};
-                ubo.projectionView = camera.getProjection() * camera.getView();
+                ubo.projection = camera.getProjection();
+                ubo.view = camera.getView();
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
                 // render
                 teRenderer.beginSwapChainRenderPass(commandBuffer);
                 renderSystem.renderGameObjects(frameInfo);
+                pointLightSystem.render(frameInfo);
                 teRenderer.endSwapChainRenderPass(commandBuffer);
                 teRenderer.endFrame();
             }
