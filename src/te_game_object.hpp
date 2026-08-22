@@ -18,6 +18,11 @@ namespace te
         glm::mat3 normalMatrix();
     };
 
+    struct PointLightComponent
+    {
+        float lightIntensity = 1.0f;
+    };
+
     class TeGameObject
     {
     public:
@@ -29,6 +34,9 @@ namespace te
             static id_t currentId = 0;
             return TeGameObject{currentId++};
         }
+
+        static TeGameObject makePointLight(float intensity = 10.0f, float radius = 0.1f, glm::vec3 color = glm::vec3(1.0f));
+
         TeGameObject(const TeGameObject &) = delete;
         TeGameObject &operator=(const TeGameObject &) = delete;
         TeGameObject(TeGameObject &&) = default;
@@ -36,9 +44,12 @@ namespace te
 
         id_t getId() { return id; };
 
-        std::shared_ptr<TeModel> model{};
         glm::vec3 color{};
         TransformComponent transform{};
+
+        // Optional pointer components
+        std::shared_ptr<TeModel> model{};
+        std::unique_ptr<PointLightComponent> pointLight = nullptr;
 
     private:
         TeGameObject(id_t objId) : id{objId} {};

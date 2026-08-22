@@ -59,4 +59,14 @@ namespace te
             },
         };
     }
+
+    TeGameObject TeGameObject::makePointLight(float intensity, float radius, glm::vec3 color)
+    {
+        TeGameObject lightGO = TeGameObject::createGameObject();
+        lightGO.color = color;
+        lightGO.transform.scale.x = radius;
+        lightGO.pointLight = std::make_unique<PointLightComponent>();
+        lightGO.pointLight->lightIntensity = intensity;
+        return lightGO;
+    }
 }
